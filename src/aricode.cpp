@@ -19,7 +19,7 @@ List countPairs(IntegerVector classi1, IntegerVector classi2, IntegerVector orde
   int class2_cur = classi2[order[0]];
 
   for(int i = 1; i < n; i++){
-    if( (class1_cur != classi1[order[i]]) | (class2_cur != classi2[order[i]]) ){
+    if( (class1_cur != classi1[order[i]]) || (class2_cur != classi2[order[i]]) ){
       count++;
       class1_cur = classi1[order[i]];
       class2_cur = classi2[order[i]];
@@ -38,7 +38,7 @@ List countPairs(IntegerVector classi1, IntegerVector classi2, IntegerVector orde
 
   // count pairs
   for(int i = 1; i < n; i++){
-    if( ( nameClassi1[current_position] == classi1[order[i]]) & (nameClassi2[current_position] == classi2[order[i]]) ){
+    if( ( nameClassi1[current_position] == classi1[order[i]]) && (nameClassi2[current_position] == classi2[order[i]]) ){
       numberPair[current_position]++;
     } else {
       current_position += 1;
@@ -100,7 +100,7 @@ List getRank(IntegerVector classi){
    // Present
    LogicalVector present(maxi - mini + 1);
    for(int i=0; i< classi.size(); i++) present[classi[i]-mini] = TRUE;
-   
+
    // Count
    IntegerVector translator(maxi - mini + 1);
    int nbIndex = 0;
@@ -112,12 +112,12 @@ List getRank(IntegerVector classi){
    IntegerVector index(nbIndex);
    int indexCur = 0;
    for(int i=0; i< present.size(); i++) {
-     if(present[i]) { 
+     if(present[i]) {
         translator[i] = indexCur;
 	index[indexCur] = i+mini;
 	indexCur++;
      } else {
-        translator[i] = R_NaN;
+        translator[i] = NA_INTEGER;
      }
    }
    // Converted Vector
@@ -126,11 +126,8 @@ List getRank(IntegerVector classi){
 
    // output as a list
    List ListOut;
-   ListOut["index"] =  index;
+   ListOut["index"] = index;
    ListOut["translator"] = translator;
-   ListOut["translated"]   = translated;
+   ListOut["translated"] = translated;
    return ListOut;
-} 
-  
-
-   
+}
