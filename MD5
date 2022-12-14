@@ -1,9 +1,9 @@
-38c7c117b3eddfb6f083f81ecb6d8e1b *DESCRIPTION
+90aa97280bde9a1eecdeb1ddc0e63bad *DESCRIPTION
 6353b921ceca7373f1393c9243d85fc5 *NAMESPACE
-c6ff89ca71a669384e7846f0d7a2ff79 *NEWS.md
+20f48fc91b8bd490ae0a5453d5347e77 *NEWS.md
 4ecfaa73238f45f1fb14fe9621eaec47 *R/RcppExports.R
 c4ae3ad1b24f3f27cc601fac093c5b30 *R/aricode-package.R
-c5f29cc89d9f430a428df8abe2e4f22a *R/aricode.R
+28a6553e56d7f0dc896cd1a553e2a396 *R/aricode.R
 c422f61e9fc5dcef75e0ada57065ad91 *inst/WORDLIST
 6adea9cb5f84cdbe20e4def09812117f *inst/check_speed.R
 14d71d4e007535ae372d617d9fa2025c *man/AMI.Rd

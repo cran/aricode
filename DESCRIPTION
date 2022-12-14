@@ -2,13 +2,14 @@ Package: aricode
 Type: Package
 Title: Efficient Computations of Standard Clustering Comparison
         Measures
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
     person("Julien", "Chiquet", role = c("aut", "cre"), email = "julien.chiquet@inrae.fr",
       comment = c(ORCID = "0000-0002-3629-3429")),
     person("Guillem", "Rigaill", role = "aut", email = "guillem.rigaill@inrae.fr"),
     person("Martina", "Sundqvist", role = "aut", email = "martina.sundqvist@agroparistech.fr"),
-    person("Valentin", "Dervieux", role = "ctb", email = "valentin.dervieux@gmail.com")
+    person("Valentin", "Dervieux", role = "ctb", email = "valentin.dervieux@gmail.com"),
+    person("Florent", "Bersani", role = "ctb", email = "florent@bersani.org")
   )
 Maintainer: Julien Chiquet <julien.chiquet@inrae.fr>
 Description: Implements an efficient O(n) algorithm based on bucket-sorting for 
@@ -26,13 +27,14 @@ Encoding: UTF-8
 Imports: Matrix, Rcpp
 Suggests: testthat, spelling
 LinkingTo: Rcpp
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Language: en-US
 NeedsCompilation: yes
-Packaged: 2022-09-04 20:54:49 UTC; jchiquet
+Packaged: 2022-12-14 09:57:57 UTC; jchiquet
 Author: Julien Chiquet [aut, cre] (<https://orcid.org/0000-0002-3629-3429>),
   Guillem Rigaill [aut],
   Martina Sundqvist [aut],
-  Valentin Dervieux [ctb]
+  Valentin Dervieux [ctb],
+  Florent Bersani [ctb]
 Repository: CRAN
-Date/Publication: 2022-09-05 09:00:02 UTC
+Date/Publication: 2022-12-14 20:00:02 UTC
