@@ -1,10 +1,11 @@
-90aa97280bde9a1eecdeb1ddc0e63bad *DESCRIPTION
+b4356f6f0a499b6b0be34a0285dccb94 *DESCRIPTION
 6353b921ceca7373f1393c9243d85fc5 *NAMESPACE
-20f48fc91b8bd490ae0a5453d5347e77 *NEWS.md
+34cee7f815466cc8e0215168792773b4 *NEWS.md
 4ecfaa73238f45f1fb14fe9621eaec47 *R/RcppExports.R
-c4ae3ad1b24f3f27cc601fac093c5b30 *R/aricode-package.R
+06078e849e4d4312d5590eece860c4e7 *R/aricode-package.R
 28a6553e56d7f0dc896cd1a553e2a396 *R/aricode.R
-c422f61e9fc5dcef75e0ada57065ad91 *inst/WORDLIST
+7080893e02c49cd296d4424b9be55069 *build/partial.rdb
+4bb0e87f72840183ceb3e58ebf8cc13f *inst/WORDLIST
 6adea9cb5f84cdbe20e4def09812117f *inst/check_speed.R
 14d71d4e007535ae372d617d9fa2025c *man/AMI.Rd
 127d498e38098845c97c17b9b24c98d7 *man/ARI.Rd
@@ -15,7 +16,7 @@ c422f61e9fc5dcef75e0ada57065ad91 *inst/WORDLIST
 70088aa62e008bb029f738590b2b8631 *man/NMI.Rd
 16607eec8e55a5101788cdcfc1f04e61 *man/NVI.Rd
 bdae50a37013396a29da9e4dc238eb46 *man/RI.Rd
-0a3b148a89e33c60f50595af6e7894b1 *man/aricode.Rd
+bad4448c936105a3f0b8bb629e5f5cf2 *man/aricode-package.Rd
 01fdbf3e41edf7d2498ba480ff0a4cbb *man/clustComp.Rd
 6493e36351123d4dace3e04b2b0f2f80 *man/entropy.Rd
 cc248620036af1253f3f8c721231a8e5 *man/sortPairs.Rd
