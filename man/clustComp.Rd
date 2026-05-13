@@ -4,24 +4,21 @@
 \alias{clustComp}
 \title{Measures of similarity between two classification}
 \usage{
-clustComp(c1, c2)
-}
-\arguments{
-\item{c1}{a vector containing the labels of the first classification. Must be a vector of characters, integers, numerics, or a factor, but not a list.}
-
-\item{c2}{a vector containing the labels of the second classification.}
-}
-\value{
-a list with the RI, ARI, NMI, NVI and NID.
+clustComp(c1, c2, sorted_pairs = NULL, AMI = FALSE)
 }
 \description{
-A function various measures of similarity between two classifications
+`r lifecycle::badge("deprecated")`
+
+A function for computing all the measures of similarity implemented in this package at once.
+Include ARI, RI, MI VI, NVI, ID, NID, NMI, Chi2, MARI, Frobenius
+
+Just a change in the function name: please use [compare_clustering()].
 }
 \examples{
 data(iris)
-cl <- cutree(hclust(dist(iris[,-5])), 4)
-clustComp(cl,iris$Species)
+cl <- cutree(hclust(dist(iris[, -5])), 4)
+out <- sort_pairs(cl, iris$Species)
+# ->
+out <- sort_pairs(cl, iris$Species)
 }
-\seealso{
-\code{\link{RI}}, \code{\link{NID}}, \code{\link{NVI}}, \code{\link{NMI}}, \code{\link{ARI}}
-}
+\keyword{internal}

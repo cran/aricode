@@ -4,12 +4,19 @@
 \alias{NID}
 \title{Normalized information distance (NID)}
 \usage{
-NID(c1, c2)
+NID(c1, c2, sorted_pairs = NULL)
 }
 \arguments{
-\item{c1}{a vector containing the labels of the first classification. Must be a vector of characters, integers, numerics, or a factor, but not a list.}
+\item{c1}{A vector of length $n$ with values between 0 and $N_1 < n$ representing the
+first classification. Supported types: integer, numeric, or factor. Avoid character
+vectors for better performance. Must not be a list.}
 
-\item{c2}{a vector containing the labels of the second classification.}
+\item{c2}{A vector of length $n$ with values between 0 and $N_2 < n$ representing the
+second classification. Supported types: integer, numeric, or factor. Avoid character
+vectors for better performance. Must not be a list.}
+
+\item{sorted_pairs}{optional output of function sort_pairs (if already computed).
+If `NULL` (the default), will be called internally}
 }
 \value{
 a scalar with the normalized information distance .
@@ -19,8 +26,8 @@ A function to compute the NID between two classifications
 }
 \examples{
 data(iris)
-cl <- cutree(hclust(dist(iris[,-5])), 4)
-NID(cl,iris$Species)
+cl <- cutree(hclust(dist(iris[, -5])), 4)
+NID(cl, iris$Species)
 }
 \seealso{
 \code{\link{RI}}, \code{\link{NMI}}, \code{\link{NVI}}, \code{\link{ARI}}, \code{\link{clustComp}}

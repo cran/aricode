@@ -10,47 +10,48 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// countPairs
-List countPairs(IntegerVector classi1, IntegerVector classi2, IntegerVector order);
-RcppExport SEXP _aricode_countPairs(SEXP classi1SEXP, SEXP classi2SEXP, SEXP orderSEXP) {
+// get_rank
+Rcpp::List get_rank(Rcpp::IntegerVector& classif);
+RcppExport SEXP _aricode_get_rank(SEXP classifSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type classi1(classi1SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type classi2(classi2SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type order(orderSEXP);
-    rcpp_result_gen = Rcpp::wrap(countPairs(classi1, classi2, order));
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type classif(classifSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_rank(classif));
+    return rcpp_result_gen;
+END_RCPP
+}
+// std_sort_pairs
+Rcpp::List std_sort_pairs(Rcpp::IntegerVector& c1_in, Rcpp::IntegerVector& c2_in, unsigned int N1, unsigned int N2);
+RcppExport SEXP _aricode_std_sort_pairs(SEXP c1_inSEXP, SEXP c2_inSEXP, SEXP N1SEXP, SEXP N2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type c1_in(c1_inSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type c2_in(c2_inSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type N1(N1SEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type N2(N2SEXP);
+    rcpp_result_gen = Rcpp::wrap(std_sort_pairs(c1_in, c2_in, N1, N2));
     return rcpp_result_gen;
 END_RCPP
 }
 // expected_MI
-double expected_MI(IntegerVector ni_, IntegerVector n_j);
-RcppExport SEXP _aricode_expected_MI(SEXP ni_SEXP, SEXP n_jSEXP) {
+double expected_MI(const Rcpp::IntegerVector& ni_r, const Rcpp::IntegerVector& nj_r);
+RcppExport SEXP _aricode_expected_MI(SEXP ni_rSEXP, SEXP nj_rSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type ni_(ni_SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type n_j(n_jSEXP);
-    rcpp_result_gen = Rcpp::wrap(expected_MI(ni_, n_j));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getRank
-List getRank(IntegerVector classi);
-RcppExport SEXP _aricode_getRank(SEXP classiSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type classi(classiSEXP);
-    rcpp_result_gen = Rcpp::wrap(getRank(classi));
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type ni_r(ni_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type nj_r(nj_rSEXP);
+    rcpp_result_gen = Rcpp::wrap(expected_MI(ni_r, nj_r));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_aricode_countPairs", (DL_FUNC) &_aricode_countPairs, 3},
+    {"_aricode_get_rank", (DL_FUNC) &_aricode_get_rank, 1},
+    {"_aricode_std_sort_pairs", (DL_FUNC) &_aricode_std_sort_pairs, 4},
     {"_aricode_expected_MI", (DL_FUNC) &_aricode_expected_MI, 2},
-    {"_aricode_getRank", (DL_FUNC) &_aricode_getRank, 1},
     {NULL, NULL, 0}
 };
 

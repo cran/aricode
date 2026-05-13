@@ -1,133 +1,222 @@
+/*
+ *   Copyright (c) 2026 INRAE
+ *   guillem.rigaill@inrae.fr, julien.chiquet@inrae.fr
+ *   INRAE
+ */
+
 #include <Rcpp.h>
-using namespace Rcpp;
 
+#include <algorithm>
+#include <execution>
+#include <numeric>
+#include <vector>
+
+// ====================================================================
+//
+// Function get_rank
+//
+// This function performs a rank transformation (dense encoding)
+// on an integer vector.
+//
 // [[Rcpp::export]]
-List countPairs(IntegerVector classi1, IntegerVector classi2, IntegerVector order) {
-  // first path to count pairs
-  int n = classi1.size();
+Rcpp::List get_rank(Rcpp::IntegerVector& classif) {
+  unsigned int n = classif.size();
 
-  // count per classification
-  IntegerVector count1(n, 0);
-  for(int i = 0; i < n; i++) count1[classi1[i]]++;
+  // 1. Find min and max in a single pass using std::minmax_element
+  auto mm = std::minmax_element(classif.begin(), classif.end());
+  int mini = *mm.first, maxi = *mm.second;
+  int range = maxi - mini + 1;
 
-  IntegerVector count2(n, 0);
-  for(int i = 0; i < n; i++) count2[classi2[i]]++;
-
-  // count per pairs
-  int count = 1;
-  int class1_cur = classi1[order[0]];
-  int class2_cur = classi2[order[0]];
-
-  for(int i = 1; i < n; i++){
-    if( (class1_cur != classi1[order[i]]) || (class2_cur != classi2[order[i]]) ){
-      count++;
-      class1_cur = classi1[order[i]];
-      class2_cur = classi2[order[i]];
-    }
+  // Mark presence (Use std::vector<char> instead of bool/LogicalVector for
+  // speed/space)
+  std::vector<char> present(range, 0);
+  for (int val : classif) {
+    present[val - mini] = 1;
   }
 
-  // create output Integer Vector for pairs and initialize
-  IntegerVector nameClassi1(count, 0);
-  IntegerVector nameClassi2(count, 0);
-  IntegerVector numberPair(count, 0);
+  // Translator and Index Vector
+  Rcpp::IntegerVector translator(range);
+  std::vector<int> index_vec;
+  index_vec.reserve(range);  // avoid frequent reallocs
 
-  int current_position = 0;
-  nameClassi1[0] = classi1[order[0]];
-  nameClassi2[0] = classi2[order[0]];
-  numberPair[0] = 1;
-
-  // count pairs
-  for(int i = 1; i < n; i++){
-    if( ( nameClassi1[current_position] == classi1[order[i]]) && (nameClassi2[current_position] == classi2[order[i]]) ){
-      numberPair[current_position]++;
+  // We can use the presence array to calculate ranks
+  int current_rank = 0;
+  for (int i = 0; i < range; ++i) {
+    if (present[i]) {
+      translator[i] = current_rank;
+      index_vec.push_back(i + mini);
+      current_rank++;
     } else {
-      current_position += 1;
-      nameClassi1[current_position] = classi1[order[i]];
-      nameClassi2[current_position] = classi2[order[i]];
-      numberPair[current_position]  = 1;
+      translator[i] = NA_INTEGER;
     }
   }
 
-  // output as a list
-  List ListOut;
-  ListOut["pair_nb"] = numberPair;
-  ListOut["pair_c1"] = nameClassi1;
-  ListOut["pair_c2"] = nameClassi2;
-  ListOut["c1_nb"]   = count1[count1 > 0];
-  ListOut["c2_nb"]   = count2[count2 > 0];
-  return(ListOut);
+  // Translate the original vector
+  Rcpp::IntegerVector translated(n);
+  for (unsigned int i = 0; i < n; ++i) {
+    translated[i] = translator[classif[i] - mini];
+  }
+
+  return Rcpp::List::create(Rcpp::Named("index") = index_vec,
+                            Rcpp::Named("translator") = translator,
+                            Rcpp::Named("translated") = translated);
 }
 
+// ====================================================================
+//
+// Sort pairs by bucket sorting : O(n) implementation
+//
+//
+
+// Use a simple struct for better readability than std::pair
+struct Pair {
+  int c1, c2;
+};
 
 // [[Rcpp::export]]
-double expected_MI(IntegerVector ni_, IntegerVector n_j) {
+Rcpp::List std_sort_pairs(Rcpp::IntegerVector& c1_in,
+                          Rcpp::IntegerVector& c2_in, unsigned int N1,
+                          unsigned int N2) {
+  // ----------------------------------------------------------
+  // Initialization
+  //
+  unsigned int n = c1_in.size();
 
-  int N = sum(ni_) ;
+  // Counting (Single pass over input)
+  std::vector<int> count_c1(N1, 0), count_c2(N2, 0);
+  for (unsigned int i = 0; i < n; ++i) {
+    count_c1[c1_in[i]]++;
+    count_c2[c2_in[i]]++;
+  }
 
-  double emi = 0.0 ;
+  // ----------------------------------------------------------
+  // Sorting c1 and c2 with Radix
+  //
 
-  NumericVector ni_f = lfactorial(ni_) ;
-  NumericVector nj_f = lfactorial(n_j) ;
-  NumericVector Nmni_f = lfactorial(N - ni_) ;
-  NumericVector Nmnj_f = lfactorial(N - n_j) ;
-  double N_f = lgamma(N + 1) ;
+  // 2. Offsets (Prefix Sum)
+  std::vector<int> shift_c1(N1), shift_c2(N2);
+  std::exclusive_scan(count_c1.begin(), count_c1.end(), shift_c1.begin(), 0);
+  std::exclusive_scan(count_c2.begin(), count_c2.end(), shift_c2.begin(), 0);
 
-  for (int i=0; i< ni_.size(); i++) {
-    for (int j=0; j< n_j.size(); j++) {
+  // Radix Sort using a single vector of Structs for intermediate
+  // This improves cache locality significantly during the sort moves
+  std::vector<Pair> buffer1(n), buffer2(n);
 
-      int start_nij = std::max(1, ni_[i] + n_j[j] - N) ;
-      int end_nij = std::min(ni_[i], n_j[j]) ;
+  // Pass 1: Sort by c2 into buffer1
+  for (unsigned int i = 0; i < n; ++i) {
+    buffer1[shift_c2[c2_in[i]]++] = {c1_in[i], c2_in[i]};
+  }
 
-      for (int nij = start_nij; nij <= end_nij; nij++ ) {
+  // Pass 2: Sort by c1 into buffer2
+  for (unsigned int i = 0; i < n; ++i) {
+    buffer2[shift_c1[buffer1[i].c1]++] = buffer1[i];
+  }
 
-          double t1 = ((float) nij / (float) N) * std::log((float)(nij * N) / (float)(ni_[i]*n_j[j])) ;
+  // Counting Unique Pairs (Single pass over sorted buffer2)
+  std::vector<int> pair_c1, pair_c2, count_pair;
+  pair_c1.reserve(n);  // Reserve to avoid reallocations
+  pair_c2.reserve(n);
+  count_pair.reserve(n);
 
-          double t2 = std::exp((ni_f[i] + nj_f[j] + Nmni_f[i] + Nmnj_f[j] - N_f - lgamma(1 + nij) - lgamma(1 + ni_[i] - nij) - lgamma(1 + n_j[j] - nij) - lgamma(1 + N - ni_[i] - n_j[j] + nij))) ;
+  for (unsigned int i = 0; i < n; ++i) {
+    if (i == 0 || buffer2[i].c1 != buffer2[i - 1].c1 ||
+        buffer2[i].c2 != buffer2[i - 1].c2) {
+      pair_c1.push_back(buffer2[i].c1);
+      pair_c2.push_back(buffer2[i].c2);
+      count_pair.push_back(1);
+    } else {
+      count_pair.back()++;
+    }
+  }
 
-          emi += t1*t2;
+  // ----------------------------------------------------------
+  // Preparing Output
+  //
+
+  std::vector<int> count_c1_f, count_c2_f;
+  for (int c : count_c1)
+    if (c > 0) count_c1_f.push_back(c);
+  for (int c : count_c2)
+    if (c > 0) count_c2_f.push_back(c);
+
+  return Rcpp::List::create(Rcpp::Named("count_pair") = count_pair,
+                            Rcpp::Named("count_c1") = count_c1_f,
+                            Rcpp::Named("count_c2") = count_c2_f,
+                            Rcpp::Named("pair_c1") = pair_c1,
+                            Rcpp::Named("pair_c2") = pair_c2);
+}
+
+// ====================================================================
+//
+// Compute the expected Mutual Information between two classification
+//
+
+// [[Rcpp::export]]
+double expected_MI(const Rcpp::IntegerVector& ni_r,
+                   const Rcpp::IntegerVector& nj_r) {
+  int n_rows = ni_r.size();
+  int n_cols = nj_r.size();
+
+  //  Direct pointer access (bypasses Rcpp operator[] bounds checking)
+  const int* ni_ptr = INTEGER(ni_r);
+  const int* nj_ptr = INTEGER(nj_r);
+
+  int64_t N = 0;
+  for (int i = 0; i < n_rows; ++i) N += ni_ptr[i];
+
+  if (N == 0) return 0.0;
+  double N_double = static_cast<double>(N);
+  double log_N = std::log(N_double);
+
+  // Pre-calculate logs AND log-factorials in one pass using std::vector
+  std::vector<double> log_fact(N + 1);
+  std::vector<double> log_ints(N + 1);
+  log_fact[0] = 0.0;
+  log_ints[0] = -INFINITY;  // log(0) is undefined, but helps catch errors
+
+  for (int i = 1; i <= N; ++i) {
+    double val = static_cast<double>(i);
+    log_ints[i] = std::log(val);
+    log_fact[i] = log_fact[i - 1] + log_ints[i];
+  }
+
+  double emi = 0.0;
+  double log_fact_N = log_fact[N];
+
+  for (int i = 0; i < n_rows; ++i) {
+    int ni = ni_ptr[i];
+    if (ni <= 0) continue;
+
+    double term_ni = log_fact[ni] + log_fact[N - ni];
+
+    for (int j = 0; j < n_cols; ++j) {
+      int nj = nj_ptr[j];
+      if (nj <= 0) continue;
+      int start_nij = std::max(1, ni + nj - static_cast<int>(N));
+      int end_nij = std::min(ni, nj);
+
+      // Move as much as possible out of the nij loop
+      double common_term =
+          term_ni + log_fact[nj] + log_fact[N - nj] - log_fact_N;
+      double log_ni_nj = log_ints[ni] + log_ints[nj];
+
+      for (int nij = start_nij; nij <= end_nij; ++nij) {
+        // Hypergeometric probability using pre-calculated STL vector
+        double log_p_nij =
+            common_term -
+            (log_fact[nij] + log_fact[ni - nij] + log_fact[nj - nj] +
+             log_fact[nj - nij] + log_fact[N - ni - nj + nij]);
+
+        double p_nij = std::exp(log_p_nij);
+
+        // Optimized MI term: No calls to std::log here
+        double mi_term = (static_cast<double>(nij) / N_double) *
+                         (log_ints[nij] + log_N - log_ni_nj);
+
+        emi += p_nij * mi_term;
       }
     }
   }
+
   return emi;
-
-}
-
-// [[Rcpp::export]]
-List getRank(IntegerVector classi){
-   int maxi = max(classi);
-   int mini = min(classi);
-
-   // Present
-   LogicalVector present(maxi - mini + 1);
-   for(int i=0; i< classi.size(); i++) present[classi[i]-mini] = TRUE;
-
-   // Count
-   IntegerVector translator(maxi - mini + 1);
-   int nbIndex = 0;
-   for(int i=0; i< present.size(); i++) {
-     if(present[i]) nbIndex++;
-   }
-
-   // Translator and Index Vector
-   IntegerVector index(nbIndex);
-   int indexCur = 0;
-   for(int i=0; i< present.size(); i++) {
-     if(present[i]) {
-        translator[i] = indexCur;
-	index[indexCur] = i+mini;
-	indexCur++;
-     } else {
-        translator[i] = NA_INTEGER;
-     }
-   }
-   // Converted Vector
-   IntegerVector translated(classi.size());
-   for(int i=0; i< classi.size(); i++) translated[i] = translator[classi[i] - mini];
-
-   // output as a list
-   List ListOut;
-   ListOut["index"] = index;
-   ListOut["translator"] = translator;
-   ListOut["translated"] = translated;
-   return ListOut;
 }

@@ -6,13 +6,18 @@
 \usage{
 sortPairs(c1, c2, spMat = FALSE)
 }
-\arguments{
-\item{c1}{a vector of length n with value between 0 and N1 < n}
-
-\item{c2}{a vector of length n with value between 0 and N2 < n}
-
-\item{spMat}{logical: send back the contingency table as sparsely encoded (cost more than the algorithm itself). Default is FALSE}
-}
 \description{
-A function to sort pairs of integers or factors and identify the pairs
+`r lifecycle::badge("deprecated")`
+
+A function to sort pairs of integers or factors and identify the pairs between two classifications
+
+Just a change in the function name: please use [sort_pairs()].
 }
+\examples{
+data(iris)
+cl <- cutree(hclust(dist(iris[, -5])), 4)
+out <- sortPairs(cl, iris$Species)
+# ->
+out <- sort_pairs(cl, iris$Species)
+}
+\keyword{internal}

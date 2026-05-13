@@ -4,24 +4,22 @@
 \alias{MARIraw}
 \title{raw Modified Adjusted Rand Index}
 \usage{
-MARIraw(c1, c2)
-}
-\arguments{
-\item{c1}{a vector containing the labels of the first classification. Must be a vector of characters, integers, numerics, or a factor, but not a list.}
-
-\item{c2}{a vector containing the labels of the second classification.}
-}
-\value{
-a scalar with the modified ARI without the division by the (maximum - expected)
+MARIraw(c1, c2, sorted_pairs = NULL)
 }
 \description{
-A function to compute a modified adjusted rand index between two classifications as proposed by Sundqvist et al. in prep, based on a multinomial model. Raw means, that the index is not divided by the (maximum - expected) value.
+`r lifecycle::badge("deprecated")`
+
+The function MARI now owns an argument function `raw` if one wishes to compute the raw version of MARI.
+}
+\details{
+A function to compute a modified adjusted rand index between two classifications as proposed by Sundqvist (2023), based on a multinomial model.
+Raw means that the index is not divided by the (maximum - expected) value.
 }
 \examples{
 data(iris)
-cl <- cutree(hclust(dist(iris[,-5])), 4)
-MARIraw(cl,iris$Species)
+cl <- cutree(hclust(dist(iris[, -5])), 4)
+out <- MARIraw(cl, iris$Species)
+# ->
+out <- MARI(cl, iris$Species, raw = TRUE)
 }
-\seealso{
-\code{\link{ARI}}, \code{\link{NID}}, \code{\link{NVI}}, \code{\link{NMI}}, \code{\link{clustComp}}
-}
+\keyword{internal}

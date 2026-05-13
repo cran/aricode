@@ -4,23 +4,37 @@
 \alias{MARI}
 \title{Modified Adjusted Rand Index}
 \usage{
-MARI(c1, c2)
+MARI(c1, c2, sorted_pairs = NULL, raw = FALSE)
 }
 \arguments{
-\item{c1}{a vector containing the labels of the first classification. Must be a vector of characters, integers, numerics, or a factor, but not a list.}
+\item{c1}{A vector of length $n$ with values between 0 and $N_1 < n$ representing the
+first classification. Supported types: integer, numeric, or factor. Avoid character
+vectors for better performance. Must not be a list.}
 
-\item{c2}{a vector containing the labels of the second classification.}
+\item{c2}{A vector of length $n$ with values between 0 and $N_2 < n$ representing the
+second classification. Supported types: integer, numeric, or factor. Avoid character
+vectors for better performance. Must not be a list.}
+
+\item{sorted_pairs}{optional output of function sort_pairs (if already computed).
+If `NULL` (the default), will be called internally}
+
+\item{raw}{Boolean: should the raw version of the MARI be computed? Default to `FALSE`.}
 }
 \value{
 a scalar with the modified ARI.
 }
 \description{
-A function to compute a modified adjusted rand index between two classifications as proposed by Sundqvist et al. in prep, based on a multinomial model.
+A function to compute a modified adjusted rand index between two classifications as proposed by Sundqvist et al. (2023), based on a multinomial model.
 }
 \examples{
 data(iris)
-cl <- cutree(hclust(dist(iris[,-5])), 4)
-MARI(cl,iris$Species)
+cl <- cutree(hclust(dist(iris[, -5])), 4)
+MARI(cl, iris$Species)
+}
+\references{
+Sundqvist, Martina, Julien Chiquet, and Guillem Rigaill. "Adjusting the
+ adjusted Rand Index: A multinomial story." Computational Statistics 38.1
+ (2023): 327-347.
 }
 \seealso{
 \code{\link{ARI}}, \code{\link{NID}}, \code{\link{NVI}}, \code{\link{NMI}}, \code{\link{clustComp}}

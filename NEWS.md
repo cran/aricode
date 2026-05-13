@@ -1,3 +1,10 @@
+## aricode 1.1-0 (2026-05-13)
+
+- Use original code for sorting pairs, which is faster than radix R implementation
+- Code linting and automation with precommit
+- various optimization in C++ and R code
+- changing function name (use deprecation)
+
 ## aricode 1.0-3 (2023-10-19)
 
 - minor fix in package documentation due to evolution of roxygen2 7.0.0 <https://github.com/r-lib/roxygen2/issues/1491>.
